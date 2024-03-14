@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping Montoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <canvas id="myChart"></canvas>
+
+    <script>
+      const chartCanvas = document.getElementById("myChart");
+
+      const fetchChartData = async () => {
+        try {
+          const chartData = await fetch(
+            "http://localhost:3000/api/v1/chart/facebook.com"
+          );
+          const response = await chartData.json();
+          const labels = response.label.map((x) =>
+            new Date(x).toLocaleString()
+          );
+          const data = response.data;
+
+          // Create the chart only after data is fetched
+          new Chart(chartCanvas, {
+            type: "line",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: response.name,
+                  data: data,
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                xAxes: [
+                  {
+                    type: "time",
+                    time: {
+                      unit: "day",
+                    },
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Time",
+                    },
+                  },
+                ],
+                yAxes: [
+                  {
+                    ticks: {
+                      beginAtZero: true,
+                    },
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Response",
+                    },
+                  },
+                ],
+              },
+            },
+          });
+        } catch (error) {
+          console.error("Error fetching chart data:", error);
+        }
+      };
+
+      fetchChartData();
+    </script>
+  </body>
+</html>
