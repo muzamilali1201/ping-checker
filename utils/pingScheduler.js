@@ -6,19 +6,20 @@ const mailSender = require("../utils/mailSender");
 const Auth = require("../model/Auth");
 
 const scheduledJob = (website) => {
-  let websiteDown = false;
   cron.schedule("*/20 * * * * *", async () => {
     try {
       const response = await ping.promise.probe(website.url);
-      const user = await Auth.findOne({ _id: website.userid });
-      const mailInformation = {
-        to: user.email,
-        subject: "",
-        text: "",
-      };
+      const pingToSite = await Site.findOne({ url: website.url });
+
       console.log(`Pinging - ${website.url} website`);
 
-      if (response && response.alive === false && websiteDown == false) {
+      if (response && response.alive === false && pingToSite.online == true) {
+        const user = await Auth.findOne({ _id: website.userid });
+        const mailInformation = {
+          to: user.email,
+          subject: "",
+          text: "",
+        };
         mailInformation.subject = "Your website is down";
         mailInformation.text = `<!DOCTYPE html>
         <html lang="en">
@@ -77,8 +78,19 @@ const scheduledJob = (website) => {
         
         `;
         mailSender(mailInformation);
-        websiteDown = true;
-      } else if (response && response.alive === true && websiteDown) {
+        pingToSite.online = false;
+        await pingToSite.save();
+      } else if (
+        response &&
+        response.alive === true &&
+        pingToSite.online == false
+      ) {
+        const user = await Auth.findOne({ _id: website.userid });
+        const mailInformation = {
+          to: user.email,
+          subject: "",
+          text: "",
+        };
         mailInformation.subject = "Your website is up now!";
         mailInformation.text = `<!DOCTYPE html>
         <html lang="en">
@@ -139,7 +151,7 @@ const scheduledJob = (website) => {
         </html>
         `;
         mailSender(mailInformation);
-        websiteDown = false;
+        pingToSite.online = true;
       }
       await Ping.create({
         userid: website.userid,

@@ -4,7 +4,7 @@ const pingRoute = require("../routes/ping.routes");
 const chartRoute = require("../routes/chart.routes");
 
 router.use("/user", authRoute);
-router.use("/ping", pingRoute);
+router.use("/websites", pingRoute);
 router.use("/chart", chartRoute);
 
 module.exports = router;
