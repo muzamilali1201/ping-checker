@@ -17,7 +17,6 @@ const scheduledJob = (website) => {
         let maxRetries = 0;
         while (maxRetries < 3) {
           setTimeout(async () => {
-            const response = await ping.promise.probe(website.url);
             console.log(`Retrying - ${website.url}`);
           }, 20000);
           maxRetries++;
