@@ -3,7 +3,7 @@ const { scheduledJob } = require("../utils/pingScheduler");
 const Site = require("../model/Site");
 
 const pingController = {
-  checkPing: async (req, res) => {
+  addWebsiteForPing: async (req, res) => {
     const { website } = req.body;
     const { userData } = req;
     const existingWebsite = await Site.findOne({

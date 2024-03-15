@@ -3,6 +3,6 @@ const verifyToken = require("../middleware/verify-token");
 
 const router = require("express").Router();
 
-router.post("/", [verifyToken], pingController.checkPing);
+router.post("/", [verifyToken], pingController.addWebsiteForPing);
 
 module.exports = router;
