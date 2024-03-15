@@ -14,6 +14,14 @@ const scheduledJob = (website) => {
       console.log(`Pinging - ${website.url} website`);
 
       if (response && response.alive === false && pingToSite.online == true) {
+        let maxRetries = 0;
+        while (maxRetries < 3) {
+          setTimeout(async () => {
+            const response = await ping.promise.probe(website.url);
+            console.log(`Retrying - ${website.url}`);
+          }, 20000);
+          maxRetries++;
+        }
         const user = await Auth.findOne({ _id: website.userid });
         const mailInformation = {
           to: user.email,
@@ -75,7 +83,7 @@ const scheduledJob = (website) => {
           </div>
         </body>
         </html>
-        
+
         `;
         mailSender(mailInformation);
         pingToSite.online = false;
