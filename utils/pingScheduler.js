@@ -16,9 +16,12 @@ const scheduledJob = (website) => {
       if (response && response.alive === false && pingToSite.online == true) {
         let maxRetries = 0;
         while (maxRetries < 3) {
-          setTimeout(async () => {
-            console.log(`Retrying - ${website.url}`);
-          }, 20000);
+          const response = await ping.promise.probe(website.url);
+          if (response.alive == false) {
+            setTimeout(async () => {
+              console.log(`Retrying - ${website.url}`);
+            }, 20000);
+          }
           maxRetries++;
         }
         const user = await Auth.findOne({ _id: website.userid });
