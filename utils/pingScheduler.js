@@ -9,11 +9,11 @@ const scheduledJob = (website) => {
   cron.schedule("*/20 * * * * *", async () => {
     try {
       const response = await ping.promise.probe(website.url);
-      const pingToSite = await Site.findOne({ url: website.url });
+      const siteToPing = await Site.findOne({ url: website.url });
 
       console.log(`Pinging - ${website.url} website`);
 
-      if (response && response.alive === false && pingToSite.online == true) {
+      if (response && response.alive === false && siteToPing.online == true) {
         let maxRetries = 0;
         while (maxRetries < 3) {
           const response = await ping.promise.probe(website.url);
@@ -88,12 +88,12 @@ const scheduledJob = (website) => {
 
         `;
         mailSender(mailInformation);
-        pingToSite.online = false;
-        await pingToSite.save();
+        siteToPing.online = false;
+        await siteToPing.save();
       } else if (
         response &&
         response.alive === true &&
-        pingToSite.online == false
+        siteToPing.online == false
       ) {
         const user = await Auth.findOne({ _id: website.userid });
         const mailInformation = {
@@ -161,7 +161,7 @@ const scheduledJob = (website) => {
         </html>
         `;
         mailSender(mailInformation);
-        pingToSite.online = true;
+        siteToPing.online = true;
       }
       await Ping.create({
         userid: website.userid,
